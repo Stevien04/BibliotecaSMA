@@ -30,6 +30,13 @@ public class PrestamoController {
 
     @GetMapping({"/", "/menu"})
     public String menuPrincipal(Model model, HttpSession session) {
+                Object rolSesion = session.getAttribute("rol");
+        if ("ADMIN".equals(rolSesion)) {
+            return "redirect:/administracion";
+        }
+        if ("LECTOR".equals(rolSesion)) {
+            return "redirect:/prestamo";
+        }
         agregarInfoUsuario(model, session);
         model.addAttribute("prestamos", servicePrestamo.listarPrestamos());
         return "MenuPrincipal";
@@ -37,12 +44,17 @@ public class PrestamoController {
 
     @GetMapping("/prestamo")
     public String verPrestamo(Model model, HttpSession session) {
+                Prestamo prestamoForm = new Prestamo();
+        Object usuario = session.getAttribute("usuario");
+        if (usuario instanceof String usuarioNombre) {
+            prestamoForm.setLector(usuarioNombre);
+        }
         if (!usuarioTieneRol(session, "LECTOR")) {
             return "redirect:/login?rol=lector";
         }
         agregarInfoUsuario(model, session);
         model.addAttribute("prestamos", servicePrestamo.listarPrestamos());
-        model.addAttribute("prestamoForm", new Prestamo());
+        model.addAttribute("prestamoForm", prestamoForm);
         return "Prestamo";
     }
 
@@ -52,8 +64,12 @@ public class PrestamoController {
         if (!usuarioTieneRol(session, "LECTOR")) {
             return "redirect:/login?rol=lector";
         }
-        servicePrestamo.crearPrestamo(prestamoForm.getTituloLibro(), prestamoForm.getLector());
-        redirectAttributes.addFlashAttribute("mensaje", "Préstamo registrado para " + prestamoForm.getLector());
+        String lector = (String) session.getAttribute("usuario");
+        if (lector == null || lector.isBlank()) {
+            return "redirect:/login?rol=lector";
+        }
+        servicePrestamo.crearPrestamo(prestamoForm.getTituloLibro(), lector);
+        redirectAttributes.addFlashAttribute("mensaje", "Préstamo registrado para " + lector);
         return "redirect:/prestamo";
     }
 

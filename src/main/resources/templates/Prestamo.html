@@ -47,9 +47,8 @@
                 <label for="tituloLibro">Título del libro</label>
                 <input id="tituloLibro" type="text" th:field="*{tituloLibro}" required placeholder="Ej. Crónica de una muerte anunciada" />
 
-                <label for="lector">Nombre del lector</label>
-                <input id="lector" type="text" th:field="*{lector}" required placeholder="Nombre y apellido" />
-
+               <p><strong>Lector:</strong> <span th:text="${usuarioActivo}">Usuario activo</span></p>
+                <input type="hidden" th:field="*{lector}" th:value="${usuarioActivo}" />
                 <button type="submit">Guardar préstamo</button>
             </form>
         </section>
