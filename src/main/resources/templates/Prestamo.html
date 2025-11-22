@@ -29,8 +29,8 @@
         <header>
                        <div>
                 <h1>Préstamo para lectores</h1>
-                <p>Solicita libros y marca las devoluciones para que el administrador las apruebe.</p>
-                <p><a th:href="@{/}">Volver al menú principal</a></p>
+                <p>Selecciona un libro, define las fechas y registra la reserva.</p>
+
             </div>
             <div class="user-box">
                 <span th:text="${usuarioActivo} + ' (' + ${rolActivo} + ')'">Usuario lector</span>
@@ -39,6 +39,29 @@
                 </form>
             </div>
         </header>
+        
+           <section>
+            <h2>Libros disponibles</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="libro : ${libros}">
+                        <td th:text="${libro}"></td>
+                        <td>
+                            <a th:href="@{|/prestamo?titulo=${libro}|}">
+                                <button type="button">Hacer reserva</button>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
 
         <section>
             <h2>Registrar un préstamo</h2>
@@ -49,6 +72,13 @@
 
                <p><strong>Lector:</strong> <span th:text="${usuarioActivo}">Usuario activo</span></p>
                 <input type="hidden" th:field="*{lector}" th:value="${usuarioActivo}" />
+                
+                 <label for="fechaPrestamo">Fecha de préstamo</label>
+                <input id="fechaPrestamo" type="date" th:field="*{fechaPrestamo}" required />
+
+                <label for="fechaDevolucion">Fecha de devolución</label>
+                <input id="fechaDevolucion" type="date" th:field="*{fechaDevolucion}" required />
+                
                 <button type="submit">Guardar préstamo</button>
             </form>
         </section>
@@ -62,6 +92,7 @@
                         <th>Libro</th>
                         <th>Lector</th>
                         <th>Fecha</th>
+                        <th>Devolución</th>
                         <th>Estado</th>
                         <th>Acción</th>
                     </tr>
@@ -72,6 +103,7 @@
                         <td th:text="${prestamo.tituloLibro}"></td>
                         <td th:text="${prestamo.lector}"></td>
                         <td th:text="${prestamo.fechaPrestamo}"></td>
+                         <td th:text="${prestamo.fechaDevolucion}"></td>
                         <td>
                             <span th:classappend="${prestamo.estado.name() == 'PRESTADO'} ? 'pill pill-prestado' : ''"
                                   th:if="${prestamo.estado.name() == 'PRESTADO'}">Prestado</span>

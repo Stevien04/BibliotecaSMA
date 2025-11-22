@@ -11,23 +11,24 @@ package com.prestamo.model;
 import java.time.LocalDate;
 
 public class Prestamo {
-    
 
     private Long id;
     private String tituloLibro;
     private String lector;
     private PrestamoEstado estado;
     private LocalDate fechaPrestamo;
+    private LocalDate fechaDevolucion;
 
     public Prestamo() {
     }
 
-    public Prestamo(Long id, String tituloLibro, String lector, PrestamoEstado estado, LocalDate fechaPrestamo) {
+    public Prestamo(Long id, String tituloLibro, String lector, PrestamoEstado estado, LocalDate fechaPrestamo, LocalDate fechaDevolucion) {
         this.id = id;
         this.tituloLibro = tituloLibro;
         this.lector = lector;
         this.estado = estado;
         this.fechaPrestamo = fechaPrestamo;
+        this.fechaDevolucion = fechaDevolucion;
     }
 
     public Long getId() {
@@ -68,5 +69,13 @@ public class Prestamo {
 
     public void setFechaPrestamo(LocalDate fechaPrestamo) {
         this.fechaPrestamo = fechaPrestamo;
+    }
+    
+    public LocalDate getFechaDevolucion() {
+        return fechaDevolucion;
+    }
+
+    public void setFechaDevolucion(LocalDate fechaDevolucion) {
+        this.fechaDevolucion = fechaDevolucion;
     }
 }

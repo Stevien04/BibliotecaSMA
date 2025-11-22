@@ -21,19 +21,23 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class PrestamoRepository {
-    
 
     private final List<Prestamo> prestamos = new CopyOnWriteArrayList<>();
     private final AtomicLong sequence = new AtomicLong(1);
 
     public PrestamoRepository() {
-        prestamos.add(new Prestamo(sequence.getAndIncrement(), "Cien años de soledad", "Ana Torres", PrestamoEstado.PRESTADO, LocalDate.now().minusDays(4)));
-        prestamos.add(new Prestamo(sequence.getAndIncrement(), "El Quijote", "Luis Pérez", PrestamoEstado.PENDIENTE_DEVOLUCION, LocalDate.now().minusDays(10)));
+        prestamos.add(new Prestamo(sequence.getAndIncrement(), "Cien años de soledad", "Ana Torres", PrestamoEstado.PRESTADO, LocalDate.now().minusDays(4), LocalDate.now().plusDays(3)));
+        prestamos.add(new Prestamo(sequence.getAndIncrement(), "El Quijote", "Luis Pérez", PrestamoEstado.PENDIENTE_DEVOLUCION, LocalDate.now().minusDays(10), LocalDate.now().minusDays(1)));
     }
 
     public Prestamo guardar(Prestamo prestamo) {
         prestamo.setId(sequence.getAndIncrement());
-        prestamo.setFechaPrestamo(LocalDate.now());
+        if (prestamo.getFechaPrestamo() == null) {
+            prestamo.setFechaPrestamo(LocalDate.now());
+        }
+        if (prestamo.getFechaDevolucion() == null) {
+            prestamo.setFechaDevolucion(prestamo.getFechaPrestamo().plusDays(7));
+        }
         prestamo.setEstado(PrestamoEstado.PRESTADO);
         prestamos.add(prestamo);
         return prestamo;
@@ -57,4 +61,5 @@ public class PrestamoRepository {
                 .filter(prestamo -> prestamo.getId().equals(id))
                 .findFirst();
     }
+
 }
