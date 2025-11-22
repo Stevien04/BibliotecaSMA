@@ -44,26 +44,30 @@ public class PrestamoController {
 
     @GetMapping("/prestamo")
     public String verPrestamo(Model model, HttpSession session, @RequestParam(name = "titulo", required = false) String titulo) {
-        Prestamo prestamoForm = new Prestamo();
+           return "redirect:/prestamo/registrar";
+    }
+
+    @GetMapping("/prestamo/registrar")
+    public String verRegistrarPrestamo(Model model, HttpSession session, @RequestParam(name = "titulo", required = false) String titulo) {
         if (!usuarioTieneRol(session, "LECTOR")) {
             return "redirect:/login?rol=lector";
         }
-        Object usuario = session.getAttribute("usuario");
-        if (usuario instanceof String usuarioNombre) {
-            prestamoForm.setLector(usuarioNombre);
-        }
-        LocalDate hoy = LocalDate.now();
-        prestamoForm.setFechaPrestamo(hoy);
-        prestamoForm.setFechaDevolucion(hoy.plusDays(7));
-        if (titulo != null && !titulo.isBlank()) {
-            prestamoForm.setTituloLibro(titulo);
+         Prestamo prestamoForm = crearPrestamoForm(session, titulo);
+        agregarInfoUsuario(model, session);
+        model.addAttribute("libros", servicePrestamo.catalogoLibros());
+        model.addAttribute("prestamoForm", prestamoForm);
+        return "Registrar";
+    }
+    
+      @GetMapping("/prestamo/mis")
+    public String verMisPrestamos(Model model, HttpSession session) {
+        if (!usuarioTieneRol(session, "LECTOR")) {
+            return "redirect:/login?rol=lector";
         }
         agregarInfoUsuario(model, session);
         model.addAttribute("prestamos", servicePrestamo.listarPrestamos());
-        model.addAttribute("libros", servicePrestamo.catalogoLibros());
-        model.addAttribute("prestamoForm", prestamoForm);
-        return "Prestamo";
-    }
+        return "MisPrestamos";
+        }
 
     @PostMapping("/prestamo")
     public String registrarPrestamo(@ModelAttribute("prestamoForm") Prestamo prestamoForm,
@@ -77,7 +81,7 @@ public class PrestamoController {
         }
         servicePrestamo.crearPrestamo(prestamoForm.getTituloLibro(), lector, prestamoForm.getFechaPrestamo(), prestamoForm.getFechaDevolucion());
         redirectAttributes.addFlashAttribute("mensaje", "Préstamo registrado para " + lector);
-        return "redirect:/prestamo";
+        return "redirect:/prestamo/mis";
     }
 
     @PostMapping("/prestamo/{id}/devolucion")
@@ -87,7 +91,7 @@ public class PrestamoController {
         }
         servicePrestamo.solicitarDevolucion(id);
         redirectAttributes.addFlashAttribute("mensaje", "Solicitud de devolución enviada al administrador.");
-        return "redirect:/prestamo";
+        return "redirect:/prestamo/mis";
     }
 
     @GetMapping("/administracion")
@@ -118,5 +122,20 @@ public class PrestamoController {
     private void agregarInfoUsuario(Model model, HttpSession session) {
         model.addAttribute("usuarioActivo", session.getAttribute("usuario"));
         model.addAttribute("rolActivo", session.getAttribute("rol"));
+    }
+    
+     private Prestamo crearPrestamoForm(HttpSession session, String titulo) {
+        Prestamo prestamoForm = new Prestamo();
+        Object usuario = session.getAttribute("usuario");
+        if (usuario instanceof String usuarioNombre) {
+            prestamoForm.setLector(usuarioNombre);
+        }
+        LocalDate hoy = LocalDate.now();
+        prestamoForm.setFechaPrestamo(hoy);
+        prestamoForm.setFechaDevolucion(hoy.plusDays(7));
+        if (titulo != null && !titulo.isBlank()) {
+            prestamoForm.setTituloLibro(titulo);
+        }
+        return prestamoForm;
     }
 }

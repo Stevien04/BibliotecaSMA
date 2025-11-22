@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Registrar préstamo</title>
+        <style>
+            body {font-family: Arial, sans-serif; margin: 24px; background: #f8f9fa;}
+            header {margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;}
+            h1 {margin: 0;}
+            p {margin: 4px 0 0; color: #495057;}
+            table {border-collapse: collapse; width: 100%; margin-top: 18px;}
+            th, td {border: 1px solid #dcdcdc; padding: 8px;}
+            th {background: #0d6efd; color: white; text-align: left;}
+            form {background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);}
+            label {display: block; margin-top: 12px;}
+            input[type="text"], input[type="date"] {width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box;}
+            button {margin-top: 12px; padding: 8px 12px; background: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;}
+            button:hover {background: #0b5ed7;}
+            .btn-secondary {background: #6c757d;}
+            .mensaje {margin: 12px 0; padding: 12px; background: #e7f5ff; border: 1px solid #b6e0fe; border-radius: 6px; color: #084298;}
+            .user-box {font-size: 14px; color: #495057; text-align: right;}
+            .user-box form {display: inline-block; margin-left: 8px;}
+            .nav-buttons {display: flex; gap: 8px; margin-bottom: 12px;}
+        </style>
+    </head>
+    <body>
+        <header>
+            <div>
+                <h1>Registrar un préstamo</h1>
+                <p>Selecciona un libro, define las fechas y registra la reserva.</p>
+                <div class="nav-buttons">
+                    <a th:href="@{/prestamo/mis}"><button type="button" class="btn-secondary">Ver mis préstamos</button></a>
+                </div>
+            </div>
+            <div class="user-box">
+                <span th:text="${usuarioActivo} + ' (' + ${rolActivo} + ')'">Usuario lector</span>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            </div>
+        </header>
+
+        <section>
+            <h2>Libros disponibles</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="libro : ${libros}">
+                        <td th:text="${libro}"></td>
+                        <td>
+                            <a th:href="@{|/prestamo/registrar?titulo=${libro}|}">
+                                <button type="button">Usar en formulario</button>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(libros)}">
+                        <td colspan="2">No hay libros disponibles.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Formulario de préstamo</h2>
+            <div th:if="${mensaje}" class="mensaje" th:text="${mensaje}"></div>
+            <form th:action="@{/prestamo}" th:object="${prestamoForm}" method="post">
+                <label for="tituloLibro">Título del libro</label>
+                <input id="tituloLibro" type="text" th:field="*{tituloLibro}" required placeholder="Ej. Crónica de una muerte anunciada" />
+
+                <p><strong>Lector:</strong> <span th:text="${usuarioActivo}">Usuario activo</span></p>
+                <input type="hidden" th:field="*{lector}" th:value="${usuarioActivo}" />
+
+                <label for="fechaPrestamo">Fecha de préstamo</label>
+                <input id="fechaPrestamo" type="date" th:field="*{fechaPrestamo}" required />
+
+                <label for="fechaDevolucion">Fecha de devolución</label>
+                <input id="fechaDevolucion" type="date" th:field="*{fechaDevolucion}" required />
+
+                <button type="submit">Guardar préstamo</button>
+            </form>
+        </section>
+    </body>
+</html>
