@@ -1,15 +1,65 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
--->
+
 <html>
+<html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>TODO supply a title</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Menú principal - Biblioteca SMA</title>
+        <style>
+            body {font-family: Arial, sans-serif; margin: 24px; background: #f8f9fa;}
+            header {margin-bottom: 12px;}
+            nav a {margin-right: 16px; color: #0d6efd; text-decoration: none; font-weight: bold;}
+            nav a:hover {text-decoration: underline;}
+            table {border-collapse: collapse; width: 100%; margin-top: 12px;}
+            th, td {border: 1px solid #dcdcdc; padding: 8px;}
+            th {background: #0d6efd; color: white; text-align: left;}
+            .estado {font-weight: bold;}
+            .pill {padding: 4px 8px; border-radius: 12px; color: white; font-size: 12px;}
+            .pill-prestado {background: #198754;}
+            .pill-pendiente {background: #ffc107; color: #212529;}
+            .pill-devuelto {background: #6c757d;}
+        </style>
     </head>
     <body>
-        <div>TODO write content</div>
+        <header>
+            <h1>Biblioteca SMA</h1>
+            <p>Accesos rápidos al flujo de préstamo y devolución.</p>
+            <nav>
+                <a th:href="@{/prestamo}">Menú de préstamo (lector)</a>
+                <a th:href="@{/administracion}">Bandeja de devoluciones (admin)</a>
+            </nav>
+        </header>
+
+        <section>
+            <h2>Préstamos registrados</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Libro</th>
+                        <th>Lector</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="prestamo : ${prestamos}">
+                        <td th:text="${prestamo.id}"></td>
+                        <td th:text="${prestamo.tituloLibro}"></td>
+                        <td th:text="${prestamo.lector}"></td>
+                        <td th:text="${prestamo.fechaPrestamo}"></td>
+                        <td>
+                            <span th:classappend="${prestamo.estado.name() == 'PRESTADO'} ? 'pill pill-prestado' : ''"
+                                  th:if="${prestamo.estado.name() == 'PRESTADO'}">Prestado</span>
+                            <span th:classappend="${prestamo.estado.name() == 'PENDIENTE_DEVOLUCION'} ? 'pill pill-pendiente' : ''"
+                                  th:if="${prestamo.estado.name() == 'PENDIENTE_DEVOLUCION'}">Pendiente de revisión</span>
+                            <span th:classappend="${prestamo.estado.name() == 'DEVUELTO'} ? 'pill pill-devuelto' : ''"
+                                  th:if="${prestamo.estado.name() == 'DEVUELTO'}">Devuelto</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
     </body>
 </html>

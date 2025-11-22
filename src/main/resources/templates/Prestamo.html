@@ -1,15 +1,86 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
--->
 <html>
+<html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>TODO supply a title</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Préstamos para lectores</title>
+        <style>
+            body {font-family: Arial, sans-serif; margin: 24px; background: #f8f9fa;}
+            header {margin-bottom: 16px;}
+            form {background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);}
+            label {display: block; margin-top: 12px;}
+            input[type="text"] {width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box;}
+            button {margin-top: 12px; padding: 8px 12px; background: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;}
+            button:hover {background: #0b5ed7;}
+            table {border-collapse: collapse; width: 100%; margin-top: 18px;}
+            th, td {border: 1px solid #dcdcdc; padding: 8px;}
+            th {background: #0d6efd; color: white; text-align: left;}
+            .btn-secondary {background: #6c757d;}
+            .pill {padding: 4px 8px; border-radius: 12px; color: white; font-size: 12px;}
+            .pill-prestado {background: #198754;}
+            .pill-pendiente {background: #ffc107; color: #212529;}
+            .pill-devuelto {background: #6c757d;}
+            .mensaje {margin-top: 12px; padding: 12px; background: #e7f5ff; border: 1px solid #b6e0fe; border-radius: 6px; color: #084298;}
+        </style>
     </head>
     <body>
-        <div>TODO write content</div>
+        <header>
+            <h1>Préstamo para lectores</h1>
+            <p>Solicita libros y marca las devoluciones para que el administrador las apruebe.</p>
+            <p><a th:href="@{/}">Volver al menú principal</a></p>
+        </header>
+
+        <section>
+            <h2>Registrar un préstamo</h2>
+            <div th:if="${mensaje}" class="mensaje" th:text="${mensaje}"></div>
+            <form th:action="@{/prestamo}" th:object="${prestamoForm}" method="post">
+                <label for="tituloLibro">Título del libro</label>
+                <input id="tituloLibro" type="text" th:field="*{tituloLibro}" required placeholder="Ej. Crónica de una muerte anunciada" />
+
+                <label for="lector">Nombre del lector</label>
+                <input id="lector" type="text" th:field="*{lector}" required placeholder="Nombre y apellido" />
+
+                <button type="submit">Guardar préstamo</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Mis préstamos</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Libro</th>
+                        <th>Lector</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="prestamo : ${prestamos}">
+                        <td th:text="${prestamo.id}"></td>
+                        <td th:text="${prestamo.tituloLibro}"></td>
+                        <td th:text="${prestamo.lector}"></td>
+                        <td th:text="${prestamo.fechaPrestamo}"></td>
+                        <td>
+                            <span th:classappend="${prestamo.estado.name() == 'PRESTADO'} ? 'pill pill-prestado' : ''"
+                                  th:if="${prestamo.estado.name() == 'PRESTADO'}">Prestado</span>
+                            <span th:classappend="${prestamo.estado.name() == 'PENDIENTE_DEVOLUCION'} ? 'pill pill-pendiente' : ''"
+                                  th:if="${prestamo.estado.name() == 'PENDIENTE_DEVOLUCION'}">Pendiente de aprobación</span>
+                            <span th:classappend="${prestamo.estado.name() == 'DEVUELTO'} ? 'pill pill-devuelto' : ''"
+                                  th:if="${prestamo.estado.name() == 'DEVUELTO'}">Devuelto</span>
+                        </td>
+                        <td>
+                            <form th:if="${prestamo.estado.name() == 'PRESTADO'}" th:action="@{|/prestamo/${prestamo.id}/devolucion|}" method="post">
+                                <button class="btn-secondary" type="submit">Solicitar devolución</button>
+                            </form>
+                            <span th:if="${prestamo.estado.name() != 'PRESTADO'}">-</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
     </body>
 </html>

@@ -19,161 +19,92 @@
 CREATE DATABASE IF NOT EXISTS `bibliotecasma` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `bibliotecasma`;
 
--- Volcando estructura para tabla bibliotecasma.detalleprestamo
-CREATE TABLE IF NOT EXISTS `detalleprestamo` (
-  `DetalleID` int(11) NOT NULL AUTO_INCREMENT,
-  `PrestamoID` int(11) NOT NULL,
-  `LibroID` int(11) NOT NULL,
-  `Cantidad` int(11) NOT NULL CHECK (`Cantidad` > 0),
-  PRIMARY KEY (`DetalleID`),
-  KEY `PrestamoID` (`PrestamoID`),
-  KEY `LibroID` (`LibroID`),
-  CONSTRAINT `detalleprestamo_ibfk_1` FOREIGN KEY (`PrestamoID`) REFERENCES `prestamo` (`PrestamoID`),
-  CONSTRAINT `detalleprestamo_ibfk_2` FOREIGN KEY (`LibroID`) REFERENCES `libro` (`LibroID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Volcando datos para la tabla bibliotecasma.detalleprestamo: ~2 rows (aproximadamente)
-INSERT INTO `detalleprestamo` (`DetalleID`, `PrestamoID`, `LibroID`, `Cantidad`) VALUES
-	(1, 1, 1, 1),
-	(2, 1, 3, 1);
-
--- Volcando estructura para tabla bibliotecasma.devolucion
-CREATE TABLE IF NOT EXISTS `devolucion` (
-  `DevolucionID` int(11) NOT NULL AUTO_INCREMENT,
-  `PrestamoID` int(11) NOT NULL,
-  `FechaDevolucion` date NOT NULL,
-  `Observacion` varchar(200) DEFAULT NULL,
-  PRIMARY KEY (`DevolucionID`),
-  KEY `PrestamoID` (`PrestamoID`),
-  CONSTRAINT `devolucion_ibfk_1` FOREIGN KEY (`PrestamoID`) REFERENCES `prestamo` (`PrestamoID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Volcando datos para la tabla bibliotecasma.devolucion: ~1 rows (aproximadamente)
-INSERT INTO `devolucion` (`DevolucionID`, `PrestamoID`, `FechaDevolucion`, `Observacion`) VALUES
-	(1, 1, '2025-12-05', 'Devuelto tarde');
-
 -- Volcando estructura para tabla bibliotecasma.lector
 CREATE TABLE IF NOT EXISTS `lector` (
   `LectorID` int(11) NOT NULL AUTO_INCREMENT,
-  `Nombre` varchar(100) NOT NULL,
-  `Apellido` varchar(100) NOT NULL,
-  `DNI` varchar(15) NOT NULL,
-  `Telefono` varchar(20) DEFAULT NULL,
+  `Nombres` varchar(100) NOT NULL,
+  `Apellidos` varchar(100) NOT NULL,
+  `DNI` varchar(20) NOT NULL,
   `Direccion` varchar(200) DEFAULT NULL,
+  `Telefono` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`LectorID`),
   UNIQUE KEY `DNI` (`DNI`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Volcando datos para la tabla bibliotecasma.lector: ~2 rows (aproximadamente)
-INSERT INTO `lector` (`LectorID`, `Nombre`, `Apellido`, `DNI`, `Telefono`, `Direccion`) VALUES
-	(1, 'Sofia', 'Mendoza', '12345678', '987654321', 'Av. Perú 123'),
-	(2, 'Luis', 'Quispe', '87654321', '912345678', 'Calle Lima 456');
+INSERT INTO `lector` (`LectorID`, `Nombres`, `Apellidos`, `DNI`, `Direccion`, `Telefono`) VALUES
+	(1, 'Sofía', 'Quispe Ramos', '71234567', 'Av. Los Álamos 123', '987654321'),
+	(2, 'Carlos', 'Mamani Flores', '78912345', 'Jr. Lima 456', '999111222');
 
 -- Volcando estructura para tabla bibliotecasma.libro
 CREATE TABLE IF NOT EXISTS `libro` (
   `LibroID` int(11) NOT NULL AUTO_INCREMENT,
   `Titulo` varchar(200) NOT NULL,
-  `Autor` varchar(150) DEFAULT NULL,
-  `Editorial` varchar(150) DEFAULT NULL,
+  `Autor` varchar(150) NOT NULL,
+  `Editorial` varchar(100) DEFAULT NULL,
   `AnioPublicacion` int(11) DEFAULT NULL,
-  `Categoria` varchar(100) DEFAULT NULL,
-  `Stock` int(11) NOT NULL,
+  `Estado` enum('DISPONIBLE','PRESTADO') DEFAULT 'DISPONIBLE',
   PRIMARY KEY (`LibroID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Volcando datos para la tabla bibliotecasma.libro: ~3 rows (aproximadamente)
-INSERT INTO `libro` (`LibroID`, `Titulo`, `Autor`, `Editorial`, `AnioPublicacion`, `Categoria`, `Stock`) VALUES
-	(1, 'El Principito', 'Antoine de Saint-Exupéry', 'Emecé', 1943, 'Ficción', 5),
-	(2, 'Cien Años de Soledad', 'Gabriel García Márquez', 'Sudamericana', 1967, 'Realismo Mágico', 3),
-	(3, 'Hamlet', 'William Shakespeare', 'Penguin', 1603, 'Drama', 4);
+INSERT INTO `libro` (`LibroID`, `Titulo`, `Autor`, `Editorial`, `AnioPublicacion`, `Estado`) VALUES
+	(1, 'Cien Años de Soledad', 'Gabriel García Márquez', 'Sudamericana', 1967, 'DISPONIBLE'),
+	(2, 'La Ciudad y los Perros', 'Mario Vargas Llosa', 'Seix Barral', 1963, 'DISPONIBLE'),
+	(3, 'El Principito', 'Antoine de Saint-Exupéry', 'Reynal & Hitchcock', 1943, 'DISPONIBLE');
 
 -- Volcando estructura para tabla bibliotecasma.multa
 CREATE TABLE IF NOT EXISTS `multa` (
   `MultaID` int(11) NOT NULL AUTO_INCREMENT,
   `PrestamoID` int(11) NOT NULL,
-  `DiasRetraso` int(11) NOT NULL,
   `Monto` decimal(10,2) NOT NULL,
-  `FechaGenerada` date NOT NULL,
+  `Motivo` varchar(200) DEFAULT NULL,
+  `FechaRegistro` date NOT NULL,
   PRIMARY KEY (`MultaID`),
   KEY `PrestamoID` (`PrestamoID`),
   CONSTRAINT `multa_ibfk_1` FOREIGN KEY (`PrestamoID`) REFERENCES `prestamo` (`PrestamoID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Volcando datos para la tabla bibliotecasma.multa: ~1 rows (aproximadamente)
-INSERT INTO `multa` (`MultaID`, `PrestamoID`, `DiasRetraso`, `Monto`, `FechaGenerada`) VALUES
-	(1, 1, 8, 12.00, '2025-11-21');
+INSERT INTO `multa` (`MultaID`, `PrestamoID`, `Monto`, `Motivo`, `FechaRegistro`) VALUES
+	(1, 1, 5.00, 'Retraso de entrega', '2025-01-20');
 
 -- Volcando estructura para tabla bibliotecasma.prestamo
 CREATE TABLE IF NOT EXISTS `prestamo` (
   `PrestamoID` int(11) NOT NULL AUTO_INCREMENT,
   `LectorID` int(11) NOT NULL,
+  `LibroID` int(11) NOT NULL,
   `FechaPrestamo` date NOT NULL,
-  `FechaMaximaDevolucion` date NOT NULL,
-  `Estado` varchar(20) NOT NULL DEFAULT 'Prestado',
+  `FechaDevolucion` date DEFAULT NULL,
+  `Estado` enum('PRESTADO','DEVUELTO','ATRASADO') DEFAULT 'PRESTADO',
   PRIMARY KEY (`PrestamoID`),
   KEY `LectorID` (`LectorID`),
-  CONSTRAINT `prestamo_ibfk_1` FOREIGN KEY (`LectorID`) REFERENCES `lector` (`LectorID`)
+  KEY `LibroID` (`LibroID`),
+  CONSTRAINT `prestamo_ibfk_1` FOREIGN KEY (`LectorID`) REFERENCES `lector` (`LectorID`),
+  CONSTRAINT `prestamo_ibfk_2` FOREIGN KEY (`LibroID`) REFERENCES `libro` (`LibroID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Volcando datos para la tabla bibliotecasma.prestamo: ~1 rows (aproximadamente)
-INSERT INTO `prestamo` (`PrestamoID`, `LectorID`, `FechaPrestamo`, `FechaMaximaDevolucion`, `Estado`) VALUES
-	(1, 1, '2025-11-20', '2025-11-27', 'Prestado');
+INSERT INTO `prestamo` (`PrestamoID`, `LectorID`, `LibroID`, `FechaPrestamo`, `FechaDevolucion`, `Estado`) VALUES
+	(1, 1, 3, '2025-01-10', NULL, 'PRESTADO');
 
--- Volcando estructura para disparador bibliotecasma.trg_AumentarStock
-SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION';
-DELIMITER //
-CREATE TRIGGER trg_AumentarStock
-AFTER INSERT ON Devolucion
-FOR EACH ROW
-BEGIN
-    UPDATE Libro l
-    JOIN DetallePrestamo dp ON l.LibroID = dp.LibroID
-    SET l.Stock = l.Stock + dp.Cantidad
-    WHERE dp.PrestamoID = NEW.PrestamoID;
-END//
-DELIMITER ;
-SET SQL_MODE=@OLDTMP_SQL_MODE;
+-- Volcando estructura para tabla bibliotecasma.usuario
+CREATE TABLE IF NOT EXISTS `usuario` (
+  `UsuarioID` int(11) NOT NULL AUTO_INCREMENT,
+  `Username` varchar(50) NOT NULL,
+  `Password` varchar(200) NOT NULL,
+  `Rol` enum('ADMIN','LECTOR') NOT NULL,
+  `LectorID` int(11) DEFAULT NULL,
+  PRIMARY KEY (`UsuarioID`),
+  UNIQUE KEY `Username` (`Username`),
+  KEY `LectorID` (`LectorID`),
+  CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`LectorID`) REFERENCES `lector` (`LectorID`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Volcando estructura para disparador bibliotecasma.trg_GenerarMultaPorRetraso
-SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION';
-DELIMITER //
-CREATE TRIGGER trg_GenerarMultaPorRetraso
-AFTER INSERT ON Devolucion
-FOR EACH ROW
-BEGIN
-    DECLARE fechaLimite DATE;
-    DECLARE diasRetraso INT;
-    DECLARE monto DECIMAL(10,2);
-
-    SELECT FechaMaximaDevolucion INTO fechaLimite
-    FROM Prestamo
-    WHERE PrestamoID = NEW.PrestamoID;
-
-    SET diasRetraso = DATEDIFF(NEW.FechaDevolucion, fechaLimite);
-
-    IF diasRetraso > 0 THEN
-        SET monto = diasRetraso * 1.50;
-
-        INSERT INTO Multa (PrestamoID, DiasRetraso, Monto, FechaGenerada)
-        VALUES (NEW.PrestamoID, diasRetraso, monto, CURDATE());
-    END IF;
-END//
-DELIMITER ;
-SET SQL_MODE=@OLDTMP_SQL_MODE;
-
--- Volcando estructura para disparador bibliotecasma.trg_ReducirStock
-SET @OLDTMP_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_ZERO_IN_DATE,NO_ZERO_DATE,NO_ENGINE_SUBSTITUTION';
-DELIMITER //
-CREATE TRIGGER trg_ReducirStock
-AFTER INSERT ON DetallePrestamo
-FOR EACH ROW
-BEGIN
-    UPDATE Libro
-    SET Stock = Stock - NEW.Cantidad
-    WHERE LibroID = NEW.LibroID;
-END//
-DELIMITER ;
-SET SQL_MODE=@OLDTMP_SQL_MODE;
+-- Volcando datos para la tabla bibliotecasma.usuario: ~2 rows (aproximadamente)
+INSERT INTO `usuario` (`UsuarioID`, `Username`, `Password`, `Rol`, `LectorID`) VALUES
+	(1, 'admin', '123', 'ADMIN', NULL),
+	(2, 'sofia', '123', 'LECTOR', 1);
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
