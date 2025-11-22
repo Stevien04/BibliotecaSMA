@@ -6,31 +6,103 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Administración de devoluciones</title>
         <style>
-            body {font-family: Arial, sans-serif; margin: 24px; background: #f8f9fa;}
-          header {margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;}
-            table {border-collapse: collapse; width: 100%; margin-top: 12px;}
-            th, td {border: 1px solid #dcdcdc; padding: 8px;}
-            th {background: #0d6efd; color: white; text-align: left;}
-            button {padding: 8px 12px; background: #198754; color: white; border: none; border-radius: 4px; cursor: pointer;}
-            button:hover {background: #157347;}
-            .mensaje {margin-top: 12px; padding: 12px; background: #e7f5ff; border: 1px solid #b6e0fe; border-radius: 6px; color: #084298;}
-            .user-box {font-size: 14px; color: #495057; text-align: right;}
-            .user-box form {display: inline-block; margin-left: 8px;}
+            body {
+                font-family: Arial, sans-serif;
+                margin: 24px;
+                background: #f8f9fa;
+            }
+            header {
+                margin-bottom: 16px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 12px;
+            }
+            th, td {
+                border: 1px solid #dcdcdc;
+                padding: 8px;
+            }
+            th {
+                background: #0d6efd;
+                color: white;
+                text-align: left;
+            }
+            button {
+                padding: 8px 12px;
+                background: #198754;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            button:hover {
+                background: #157347;
+            }
+            .mensaje {
+                margin-top: 12px;
+                padding: 12px;
+                background: #e7f5ff;
+                border: 1px solid #b6e0fe;
+                border-radius: 6px;
+                color: #084298;
+            }
+            .user-box {
+                font-size: 14px;
+                color: #495057;
+                text-align: right;
+            }
+            .user-box form {
+                display: inline-block;
+                margin-left: 8px;
+            }
         </style>
     </head>
     <body>
         <div>
-                <h1>Panel de administración</h1>
-                <p>Acepta o rechaza devoluciones solicitadas por los lectores.</p>
-                <div th:if="${mensaje}" class="mensaje" th:text="${mensaje}"></div>
-            </div>
-            <div class="user-box">
-                <span th:text="${usuarioActivo} + ' (' + ${rolActivo} + ')'">Usuario admin</span>
-                <form th:action="@{/logout}" method="post">
-                    <button type="submit">Cerrar sesión</button>
-                </form>
-            </div>
-
+            <h1>Panel de administración</h1>
+            <p>Aprueba solicitudes de préstamo y acepta devoluciones solicitadas por los lectores.</p>
+            <div th:if="${mensaje}" class="mensaje" th:text="${mensaje}"></div>
+        </div>
+        <div class="user-box">
+            <span th:text="${usuarioActivo} + ' (' + ${rolActivo} + ')'">Usuario admin</span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit">Cerrar sesión</button>
+            </form>
+        </div>
+ <section>
+            <h2>Préstamos por aprobar</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Libro</th>
+                        <th>Lector</th>
+                        <th>Fecha solicitada</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="prestamo : ${solicitudes}">
+                        <td th:text="${prestamo.id}"></td>
+                        <td th:text="${prestamo.tituloLibro}"></td>
+                        <td th:text="${prestamo.lector}"></td>
+                        <td th:text="${prestamo.fechaPrestamo}"></td>
+                        <td>
+                            <form th:action="@{|/administracion/${prestamo.id}/aprobar|}" method="post">
+                                <button type="submit">Aprobar préstamo</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(solicitudes)}">
+                        <td colspan="5">No hay solicitudes pendientes de aprobación.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
         <section>
             <h2>Devoluciones pendientes</h2>
             <table>

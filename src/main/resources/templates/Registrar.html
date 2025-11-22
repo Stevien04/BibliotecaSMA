@@ -5,23 +5,126 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Registrar préstamo</title>
         <style>
-            body {font-family: Arial, sans-serif; margin: 24px; background: #f8f9fa;}
-            header {margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;}
-            h1 {margin: 0;}
-            p {margin: 4px 0 0; color: #495057;}
-            table {border-collapse: collapse; width: 100%; margin-top: 18px;}
-            th, td {border: 1px solid #dcdcdc; padding: 8px;}
-            th {background: #0d6efd; color: white; text-align: left;}
-            form {background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);}
-            label {display: block; margin-top: 12px;}
-            input[type="text"], input[type="date"] {width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box;}
-            button {margin-top: 12px; padding: 8px 12px; background: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;}
-            button:hover {background: #0b5ed7;}
-            .btn-secondary {background: #6c757d;}
-            .mensaje {margin: 12px 0; padding: 12px; background: #e7f5ff; border: 1px solid #b6e0fe; border-radius: 6px; color: #084298;}
-            .user-box {font-size: 14px; color: #495057; text-align: right;}
-            .user-box form {display: inline-block; margin-left: 8px;}
-            .nav-buttons {display: flex; gap: 8px; margin-bottom: 12px;}
+            body {
+                font-family: Arial, sans-serif;
+                margin: 24px;
+                background: #f8f9fa;
+            }
+            header {
+                margin-bottom: 16px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            h1 {
+                margin: 0;
+            }
+            p {
+                margin: 4px 0 0;
+                color: #495057;
+            }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 18px;
+            }
+            th, td {
+                border: 1px solid #dcdcdc;
+                padding: 8px;
+            }
+            th {
+                background: #0d6efd;
+                color: white;
+                text-align: left;
+            }
+
+            label {
+                display: block;
+                margin-top: 12px;
+            }
+            input[type="text"], input[type="date"] {
+                width: 100%;
+                padding: 8px;
+                margin-top: 4px;
+                box-sizing: border-box;
+            }
+            button {
+                margin-top: 12px;
+                padding: 8px 12px;
+                background: #0d6efd;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            button:hover {
+                background: #0b5ed7;
+            }
+            .btn-secondary {
+                background: #6c757d;
+            }
+            .mensaje {
+                margin: 12px 0;
+                padding: 12px;
+                background: #e7f5ff;
+                border: 1px solid #b6e0fe;
+                border-radius: 6px;
+                color: #084298;
+            }
+            .mensaje.error {
+                background: #fdecef;
+                border-color: #f5c2c7;
+                color: #842029;
+            }
+            .user-box {
+                font-size: 14px;
+                color: #495057;
+                text-align: right;
+            }
+            .user-box form {
+                display: inline-block;
+                margin-left: 8px;
+            }
+            .nav-buttons {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            .modal-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.45);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 12px;
+            }
+            .modal-backdrop.visible {
+                display: flex;
+            }
+            .modal {
+                background: white;
+                border-radius: 10px;
+                max-width: 540px;
+                width: 100%;
+                padding: 18px;
+                box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+                position: relative;
+            }
+            .modal header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+            .modal-close {
+                background: transparent;
+                color: #6c757d;
+                font-size: 22px;
+                border: none;
+                cursor: pointer;
+                margin-top: 0;
+            }
         </style>
     </head>
     <body>
@@ -31,6 +134,7 @@
                 <p>Selecciona un libro, define las fechas y registra la reserva.</p>
                 <div class="nav-buttons">
                     <a th:href="@{/prestamo/mis}"><button type="button" class="btn-secondary">Ver mis préstamos</button></a>
+                    <button type="button" id="openFormBtn">Abrir formulario</button>
                 </div>
             </div>
             <div class="user-box">
@@ -66,24 +170,78 @@
             </table>
         </section>
 
-        <section>
-            <h2>Formulario de préstamo</h2>
-            <div th:if="${mensaje}" class="mensaje" th:text="${mensaje}"></div>
-            <form th:action="@{/prestamo}" th:object="${prestamoForm}" method="post">
-                <label for="tituloLibro">Título del libro</label>
-                <input id="tituloLibro" type="text" th:field="*{tituloLibro}" required placeholder="Ej. Crónica de una muerte anunciada" />
+        <div id="modalBackdrop" class="modal-backdrop" th:classappend="${abrirModal} ? ' visible' : ''" th:data-open="${abrirModal}">
+            <div class="modal">
+                <header>
+                    <div>
+                        <h2 style="margin:0">Formulario de préstamo</h2>
+                        <p style="margin:0;color:#495057">Completa los datos para enviar tu solicitud.</p>
+                    </div>
+                    <button type="button" id="closeModalBtn" class="modal-close" aria-label="Cerrar">×</button>
+                </header>
+                <div th:if="${mensaje}" class="mensaje" th:text="${mensaje}"></div>
+                <div th:if="${error}" class="mensaje error" th:text="${error}"></div>
+                <form th:action="@{/prestamo}" th:object="${prestamoForm}" method="post">
+                    <label for="tituloLibro">Título del libro</label>
+                    <input id="tituloLibro" type="text" th:field="*{tituloLibro}" required placeholder="Ej. Crónica de una muerte anunciada" />
 
-                <p><strong>Lector:</strong> <span th:text="${usuarioActivo}">Usuario activo</span></p>
-                <input type="hidden" th:field="*{lector}" th:value="${usuarioActivo}" />
+                    <p><strong>Lector:</strong> <span th:text="${usuarioActivo}">Usuario activo</span></p>
+                    <input type="hidden" th:field="*{lector}" th:value="${usuarioActivo}" />
 
-                <label for="fechaPrestamo">Fecha de préstamo</label>
-                <input id="fechaPrestamo" type="date" th:field="*{fechaPrestamo}" required />
+                    <label for="fechaPrestamo">Fecha de préstamo</label>
+                    <input id="fechaPrestamo" type="date" th:field="*{fechaPrestamo}" required />
 
-                <label for="fechaDevolucion">Fecha de devolución</label>
-                <input id="fechaDevolucion" type="date" th:field="*{fechaDevolucion}" required />
 
-                <button type="submit">Guardar préstamo</button>
-            </form>
-        </section>
+                    <label for="fechaDevolucion">Fecha de devolución</label>
+                    <input id="fechaDevolucion" type="date" th:field="*{fechaDevolucion}" required />
+
+                    <button type="submit">Enviar solicitud</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            const modalBackdrop = document.getElementById('modalBackdrop');
+            const openBtn = document.getElementById('openFormBtn');
+            const closeBtn = document.getElementById('closeModalBtn');
+            const fechaPrestamoInput = document.getElementById('fechaPrestamo');
+            const fechaDevolucionInput = document.getElementById('fechaDevolucion');
+
+            const toggleModal = (show) => {
+                if (!modalBackdrop)
+                    return;
+                modalBackdrop.classList.toggle('visible', show);
+            };
+
+            if (openBtn) {
+                openBtn.addEventListener('click', () => toggleModal(true));
+            }
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => toggleModal(false));
+            }
+
+            if (modalBackdrop && modalBackdrop.dataset.open === 'true') {
+                toggleModal(true);
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            if (fechaPrestamoInput) {
+                fechaPrestamoInput.setAttribute('min', today);
+                fechaPrestamoInput.addEventListener('change', (event) => {
+                    const value = event.target.value;
+                    if (fechaDevolucionInput && fechaDevolucionInput.value < value) {
+                        fechaDevolucionInput.value = value;
+                    }
+                    if (fechaDevolucionInput) {
+                        fechaDevolucionInput.setAttribute('min', value);
+                    }
+                });
+            }
+
+            if (fechaDevolucionInput && fechaPrestamoInput) {
+                fechaDevolucionInput.setAttribute('min', fechaPrestamoInput.value || today);
+            }
+        </script>
     </body>
 </html>

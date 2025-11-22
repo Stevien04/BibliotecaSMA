@@ -28,6 +28,7 @@ public class PrestamoRepository {
     public PrestamoRepository() {
         prestamos.add(new Prestamo(sequence.getAndIncrement(), "Cien años de soledad", "Ana Torres", PrestamoEstado.PRESTADO, LocalDate.now().minusDays(4), LocalDate.now().plusDays(3)));
         prestamos.add(new Prestamo(sequence.getAndIncrement(), "El Quijote", "Luis Pérez", PrestamoEstado.PENDIENTE_DEVOLUCION, LocalDate.now().minusDays(10), LocalDate.now().minusDays(1)));
+        prestamos.add(new Prestamo(sequence.getAndIncrement(), "Rayuela", "lector", PrestamoEstado.PENDIENTE_APROBACION, LocalDate.now(), LocalDate.now().plusDays(7)));
     }
 
     public Prestamo guardar(Prestamo prestamo) {
@@ -38,7 +39,9 @@ public class PrestamoRepository {
         if (prestamo.getFechaDevolucion() == null) {
             prestamo.setFechaDevolucion(prestamo.getFechaPrestamo().plusDays(7));
         }
-        prestamo.setEstado(PrestamoEstado.PRESTADO);
+        if (prestamo.getEstado() == null) {
+            prestamo.setEstado(PrestamoEstado.PENDIENTE_APROBACION);
+        }
         prestamos.add(prestamo);
         return prestamo;
     }
@@ -60,6 +63,13 @@ public class PrestamoRepository {
         return prestamos.stream()
                 .filter(prestamo -> prestamo.getId().equals(id))
                 .findFirst();
+    }
+
+    public boolean existePrestamoActivo(String tituloLibro, String lector) {
+        return prestamos.stream()
+                .filter(prestamo -> prestamo.getTituloLibro().equalsIgnoreCase(tituloLibro)
+                && prestamo.getLector().equalsIgnoreCase(lector))
+                .anyMatch(prestamo -> prestamo.getEstado() != PrestamoEstado.DEVUELTO);
     }
 
 }

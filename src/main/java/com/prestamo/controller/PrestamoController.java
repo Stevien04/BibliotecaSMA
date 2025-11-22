@@ -44,7 +44,7 @@ public class PrestamoController {
 
     @GetMapping("/prestamo")
     public String verPrestamo(Model model, HttpSession session, @RequestParam(name = "titulo", required = false) String titulo) {
-           return "redirect:/prestamo/registrar";
+        return "redirect:/prestamo/registrar";
     }
 
     @GetMapping("/prestamo/registrar")
@@ -52,22 +52,27 @@ public class PrestamoController {
         if (!usuarioTieneRol(session, "LECTOR")) {
             return "redirect:/login?rol=lector";
         }
-         Prestamo prestamoForm = crearPrestamoForm(session, titulo);
+        Prestamo prestamoForm = (Prestamo) model.asMap().get("prestamoFallido");
+        if (prestamoForm == null) {
+            prestamoForm = crearPrestamoForm(session, titulo);
+        }
         agregarInfoUsuario(model, session);
         model.addAttribute("libros", servicePrestamo.catalogoLibros());
         model.addAttribute("prestamoForm", prestamoForm);
+        model.addAttribute("abrirModal", true);
         return "Registrar";
     }
-    
-      @GetMapping("/prestamo/mis")
+
+    @GetMapping("/prestamo/mis")
     public String verMisPrestamos(Model model, HttpSession session) {
         if (!usuarioTieneRol(session, "LECTOR")) {
             return "redirect:/login?rol=lector";
         }
         agregarInfoUsuario(model, session);
-        model.addAttribute("prestamos", servicePrestamo.listarPrestamos());
+        String lector = (String) session.getAttribute("usuario");
+        model.addAttribute("prestamos", servicePrestamo.listarPrestamosPorLector(lector));
         return "MisPrestamos";
-        }
+    }
 
     @PostMapping("/prestamo")
     public String registrarPrestamo(@ModelAttribute("prestamoForm") Prestamo prestamoForm,
@@ -79,8 +84,14 @@ public class PrestamoController {
         if (lector == null || lector.isBlank()) {
             return "redirect:/login?rol=lector";
         }
-        servicePrestamo.crearPrestamo(prestamoForm.getTituloLibro(), lector, prestamoForm.getFechaPrestamo(), prestamoForm.getFechaDevolucion());
-        redirectAttributes.addFlashAttribute("mensaje", "Préstamo registrado para " + lector);
+        try {
+            servicePrestamo.crearPrestamo(prestamoForm.getTituloLibro(), lector, prestamoForm.getFechaPrestamo(), prestamoForm.getFechaDevolucion());
+            redirectAttributes.addFlashAttribute("mensaje", "Solicitud enviada, un administrador debe aprobarla antes de entregarte el libro.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("prestamoFallido", prestamoForm);
+            return "redirect:/prestamo/registrar";
+        }
         return "redirect:/prestamo/mis";
     }
 
@@ -100,8 +111,19 @@ public class PrestamoController {
             return "redirect:/login?rol=admin";
         }
         agregarInfoUsuario(model, session);
+        model.addAttribute("solicitudes", servicePrestamo.listarPendientesAprobacion());
         model.addAttribute("pendientes", servicePrestamo.listarPendientesDevolucion());
         return "Administracion";
+    }
+
+    @PostMapping("/administracion/{id}/aprobar")
+    public String aprobarPrestamo(@PathVariable Long id, RedirectAttributes redirectAttributes, HttpSession session) {
+        if (!usuarioTieneRol(session, "ADMIN")) {
+            return "redirect:/login?rol=admin";
+        }
+        servicePrestamo.aprobarPrestamo(id);
+        redirectAttributes.addFlashAttribute("mensaje", "Préstamo aprobado correctamente.");
+        return "redirect:/administracion";
     }
 
     @PostMapping("/administracion/{id}/aceptar")
@@ -123,8 +145,8 @@ public class PrestamoController {
         model.addAttribute("usuarioActivo", session.getAttribute("usuario"));
         model.addAttribute("rolActivo", session.getAttribute("rol"));
     }
-    
-     private Prestamo crearPrestamoForm(HttpSession session, String titulo) {
+
+    private Prestamo crearPrestamoForm(HttpSession session, String titulo) {
         Prestamo prestamoForm = new Prestamo();
         Object usuario = session.getAttribute("usuario");
         if (usuario instanceof String usuarioNombre) {
