@@ -42,6 +42,35 @@
             button:hover {
                 background: #157347;
             }
+
+            .nav-actions {
+                display: flex;
+                gap: 10px;
+                margin-top: 12px;
+                flex-wrap: wrap;
+            }
+            .nav-actions a {
+                text-decoration: none;
+            }
+            .nav-btn {
+                display: inline-block;
+                padding: 8px 12px;
+                border-radius: 4px;
+                font-weight: 600;
+                color: white;
+            }
+            .nav-btn.approve {
+                background: #0d6efd;
+            }
+            .nav-btn.return {
+                background: #6c757d;
+            }
+            .nav-btn.approve:hover {
+                background: #0b5ed7;
+            }
+            .nav-btn.return:hover {
+                background: #5c636a;
+            }
             .mensaje {
                 margin-top: 12px;
                 padding: 12px;
@@ -65,6 +94,10 @@
         <div>
             <h1>Panel de administración</h1>
             <p>Aprueba solicitudes de préstamo y acepta devoluciones solicitadas por los lectores.</p>
+            <div class="nav-actions">
+                <a class="nav-btn approve" href="#solicitudes">Aprobar préstamos</a>
+                <a class="nav-btn return" href="#devoluciones">Gestionar devoluciones</a>
+            </div>
             <div th:if="${mensaje}" class="mensaje" th:text="${mensaje}"></div>
         </div>
         <div class="user-box">
@@ -73,7 +106,7 @@
                 <button type="submit">Cerrar sesión</button>
             </form>
         </div>
- <section>
+        <section id="solicitudes">
             <h2>Préstamos por aprobar</h2>
             <table>
                 <thead>
@@ -103,7 +136,7 @@
                 </tbody>
             </table>
         </section>
-        <section>
+        <section id="devoluciones">
             <h2>Devoluciones pendientes</h2>
             <table>
                 <thead>
