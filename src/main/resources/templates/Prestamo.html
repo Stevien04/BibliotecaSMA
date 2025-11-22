@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
@@ -7,7 +6,7 @@
         <title>Préstamos para lectores</title>
         <style>
             body {font-family: Arial, sans-serif; margin: 24px; background: #f8f9fa;}
-            header {margin-bottom: 16px;}
+             header {margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;}
             form {background: white; padding: 16px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);}
             label {display: block; margin-top: 12px;}
             input[type="text"] {width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box;}
@@ -22,13 +21,23 @@
             .pill-pendiente {background: #ffc107; color: #212529;}
             .pill-devuelto {background: #6c757d;}
             .mensaje {margin-top: 12px; padding: 12px; background: #e7f5ff; border: 1px solid #b6e0fe; border-radius: 6px; color: #084298;}
+            .user-box {font-size: 14px; color: #495057; text-align: right;}
+            .user-box form {display: inline-block; margin-left: 8px;}
         </style>
     </head>
     <body>
         <header>
-            <h1>Préstamo para lectores</h1>
-            <p>Solicita libros y marca las devoluciones para que el administrador las apruebe.</p>
-            <p><a th:href="@{/}">Volver al menú principal</a></p>
+                       <div>
+                <h1>Préstamo para lectores</h1>
+                <p>Solicita libros y marca las devoluciones para que el administrador las apruebe.</p>
+                <p><a th:href="@{/}">Volver al menú principal</a></p>
+            </div>
+            <div class="user-box">
+                <span th:text="${usuarioActivo} + ' (' + ${rolActivo} + ')'">Usuario lector</span>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            </div>
         </header>
 
         <section>

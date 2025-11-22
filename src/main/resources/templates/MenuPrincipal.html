@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html>
+
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
@@ -8,7 +8,7 @@
         <title>Menú principal - Biblioteca SMA</title>
         <style>
             body {font-family: Arial, sans-serif; margin: 24px; background: #f8f9fa;}
-            header {margin-bottom: 12px;}
+             header {margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
             nav a {margin-right: 16px; color: #0d6efd; text-decoration: none; font-weight: bold;}
             nav a:hover {text-decoration: underline;}
             table {border-collapse: collapse; width: 100%; margin-top: 12px;}
@@ -19,16 +19,26 @@
             .pill-prestado {background: #198754;}
             .pill-pendiente {background: #ffc107; color: #212529;}
             .pill-devuelto {background: #6c757d;}
+              .user-box {font-size: 14px; color: #495057;}
         </style>
     </head>
     <body>
         <header>
-            <h1>Biblioteca SMA</h1>
-            <p>Accesos rápidos al flujo de préstamo y devolución.</p>
-            <nav>
-                <a th:href="@{/prestamo}">Menú de préstamo (lector)</a>
-                <a th:href="@{/administracion}">Bandeja de devoluciones (admin)</a>
-            </nav>
+                       <div>
+                <h1>Biblioteca SMA</h1>
+                <p>Accesos rápidos al flujo de préstamo y devolución.</p>
+                <nav>
+                    <a th:href="@{/prestamo}">Menú de préstamo (lector)</a>
+                    <a th:href="@{/administracion}">Bandeja de devoluciones (admin)</a>
+                    <a th:href="@{/login}">Iniciar sesión</a>
+                </nav>
+            </div>
+            <div class="user-box" th:if="${usuarioActivo}">
+                <p th:text="'Sesión: ' + ${usuarioActivo} + ' (' + ${rolActivo} + ')'">Sesión activa</p>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            </div>
         </header>
 
         <section>
